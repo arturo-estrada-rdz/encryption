@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { encryptMessage } from '../libs/encrypt-message';
+import { NextFunction, Request, Response } from 'express';
 import { decryptMessage } from '../libs/decrypt-message';
+import { encryptMessage } from '../libs/encrypt-message';
 
 /**
  * Handles sending a message by encrypting the provided message in the request body.

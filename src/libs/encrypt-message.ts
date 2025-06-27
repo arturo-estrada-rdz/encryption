@@ -1,6 +1,6 @@
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
 
 /**
  * Encrypts a plain text message using the RSA public key stored in 'secrets/public.pem'.

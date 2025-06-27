@@ -1,6 +1,6 @@
 import express from 'express';
-import messageRouter from './src/routes/message.router';
 import { errorHandler } from './src/error/error';
+import messageRouter from './src/routes/message.router';
 
 const app = express();
 
