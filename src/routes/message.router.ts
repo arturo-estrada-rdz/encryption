@@ -1,24 +1,114 @@
 import { Router } from 'express';
-import { receiveMessage, sendMessage } from '../controllers/message.controller';
+import { getMessages, sendMessage } from '../controllers/message.controller';
 import { notAllowedError, notFoundError } from '../error/error';
 
 const router = Router();
 
+/**
+ * @swagger
+ * /message/send:
+ *   post:
+ *     summary: Send an encrypted message from one user to another
+ *     tags:
+ *       - Message
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - to
+ *               - from
+ *               - encrypted
+ *               - encryptedKey
+ *             properties:
+ *               to:
+ *                 type: string
+ *                 description: Recipient username
+ *               from:
+ *                 type: string
+ *                 description: Sender username
+ *               encrypted:
+ *                 type: string
+ *                 description: Encrypted message content
+ *               encryptedKey:
+ *                 type: string
+ *                 description: Encrypted key for the message
+ *     responses:
+ *       200:
+ *         description: Message sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     to:
+ *                       type: string
+ *                     from:
+ *                       type: string
+ *                     encrypted:
+ *                       type: string
+ *                     encryptedKey:
+ *                       type: string
+ */
 router.post('/send', sendMessage);
-router.post('/receive', receiveMessage);
 
-// Handle unsupported methods for /send
+/**
+ * @swagger
+ * /message/{username}:
+ *   get:
+ *     summary: Retrieve all messages sent to a specific user
+ *     tags:
+ *       - Message
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The recipient's username
+ *     responses:
+ *       200:
+ *         description: Messages retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       to:
+ *                         type: string
+ *                       from:
+ *                         type: string
+ *                       encrypted:
+ *                         type: string
+ *                       encryptedKey:
+ *                         type: string
+ */
+router.get('/:username', getMessages);
+
 router.all('/send', (_req, _res, next) => {
-  next(notAllowedError());
+  next(notAllowedError('Method Not Allowed'));
 });
 
-// Handle unsupported methods for /receive
-router.all('/receive', (_req, _res, next) => {
-  next(notAllowedError());
+router.all('/:username', (_req, _res, next) => {
+  next(notAllowedError('Method Not Allowed'));
 });
 
 router.use((_req, _res, next) => {
-  next(notFoundError());
+  next(notFoundError('Route Not Found'));
 });
 
 export default router;

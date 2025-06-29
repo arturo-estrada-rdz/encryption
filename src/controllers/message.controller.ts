@@ -1,57 +1,69 @@
 import { NextFunction, Request, Response } from 'express';
-import { decryptMessage } from '../libs/decrypt-message';
-import { encryptMessage } from '../libs/encrypt-message';
+import { messageRepository } from '../repositories/message.repository';
 
 /**
- * Handles sending a message by encrypting the provided message in the request body.
- * Responds with a success message and the encrypted message.
+ * Sends an encrypted message from one user to another.
  *
- * @param {Request} req - Express request object, expects `message` in the body.
- * @param {Response} res - Express response object.
- * @param {NextFunction} next - Express next middleware function.
- * @returns {Response} JSON response with encrypted message.
+ * Expects the following fields in the request body:
+ *  - to: Recipient username
+ *  - from: Sender username
+ *  - encrypted: Encrypted message content
+ *  - encryptedKey: Encrypted key for the message
+ *
+ * Responds with a success message and the sent data.
+ *
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {NextFunction} next Express next middleware function
  */
-export const sendMessage = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export function sendMessage(req: Request, res: Response, next: NextFunction) {
   try {
-    const message = req.body.message;
-    const encrypted = encryptMessage(message);
+    const { to, from, encrypted, encryptedKey } = req.body;
+
+    messageRepository.create({
+      to,
+      from,
+      encrypted,
+      encryptedKey,
+    });
 
     res.status(200).json({
       message: 'Message sent successfully',
-      encryptedMessage: encrypted,
+      data: {
+        to,
+        from,
+        encrypted,
+        encryptedKey,
+      },
     });
   } catch (error) {
     next(error);
   }
-};
+}
 
 /**
- * Handles receiving a message by decrypting the provided encrypted message in the request body.
- * Responds with a success message and the decrypted message.
+ * Retrieves all messages sent to a specific user.
  *
- * @param {Request} req - Express request object, expects `encryptedMessage` in the body.
- * @param {Response} res - Express response object.
- * @param {NextFunction} next - Express next middleware function.
- * @returns {Response} JSON response with decrypted message.
+ * Expects the following parameter in the request URL:
+ *  - username: The recipient's username
+ *
+ * Responds with a list of messages addressed to the user.
+ *
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {NextFunction} next Express next middleware function
  */
-export const receiveMessage = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export function getMessages(req: Request, res: Response, next: NextFunction) {
   try {
-    const encrypted = req.body.encryptedMessage;
-    const decrypted = decryptMessage(encrypted);
+    const { username } = req.params;
+
+    const messages = messageRepository.readByField('to', username);
 
     res.status(200).json({
-      message: 'Message received successfully',
-      decryptedMessage: decrypted,
+      message: 'Messages retrieved successfully',
+      data: messages,
     });
   } catch (error) {
     next(error);
   }
-};
+}

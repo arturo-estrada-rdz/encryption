@@ -3,11 +3,13 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 interface Environment {
-  port: number;
+  port: string;
   nodeEnv: string;
 }
 
-export const config: Environment = {
-  port: Number(process.env.PORT) || 3000,
-  nodeEnv: process.env.NODE_ENV || 'development',
+const config: Environment = {
+  port: process.env.PORT ?? '3000',
+  nodeEnv: process.env.NODE_ENV ?? 'development',
 };
+
+export default config;

@@ -3,3 +3,6 @@ secrets/*
 .env
 node_modules
 dist
+data/*
+generated/*
+!generated/swagger-generator.ts
